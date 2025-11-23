@@ -26,3 +26,34 @@ export type RunRow = {
   started_at: string;
   duration: string;
 };
+
+export type WorkflowRun = {
+  id: string;
+  workflow_id: string;
+  user_id: string;
+  workflow_name: string;
+  status: "success" | "failed" | "running";
+  input: Record<string, any>;
+  output: any;
+  node_outputs: Record<string, any>;
+  error?: string;
+  started_at: string;
+  finished_at?: string;
+  duration: string;
+};
+
+export type ExecutionLogEntry = {
+  nodeId: string;
+  kind: string;
+  startedAt: string;
+  finishedAt: string;
+  status: "success" | "failed";
+  output?: any;
+  error?: string;
+};
+
+export type ExecutionResult = {
+  logs: ExecutionLogEntry[];
+  nodeOutputs: Record<string, any>;
+  finalOutput: any;
+};

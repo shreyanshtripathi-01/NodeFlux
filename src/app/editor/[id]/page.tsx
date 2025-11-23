@@ -25,6 +25,16 @@ const NODE_TYPES = ["Input", "Prompt", "HTTP", "Transform", "Output"] as const;
 const initialNodes: Node<WorkflowNodeData>[] = [];
 const initialEdges: Edge[] = [];
 
+type LogEntry = {
+  nodeId: string;
+  kind: string;
+  status: "success" | "failed";
+  output?: any;
+  error?: string;
+  startedAt: string;
+  finishedAt: string;
+};
+
 function EditorInner() {
   const params = useParams();
   const router = useRouter();
@@ -41,9 +51,13 @@ function EditorInner() {
   const [saving, setSaving] = useState(false);
   const [placementType, setPlacementType] = useState<WorkflowNodeData["type"] | null>(null);
   const [terminalOpen, setTerminalOpen] = useState(true);
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
+  const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([]);
+  const [terminalStatus, setTerminalStatus] = useState<"idle" | "running" | "success" | "failed">("idle");
   const [terminalHeight, setTerminalHeight] = useState(180);
   const [running, setRunning] = useState(false);
+  const [showInputModal, setShowInputModal] = useState(false);
+  const [workflowInput, setWorkflowInput] = useState("{}");
+  const [expandedLogs, setExpandedLogs] = useState<Set<number>>(new Set());
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -54,7 +68,6 @@ function EditorInner() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<{ startY: number; startH: number } | null>(null);
 
-  // Load existing workflow on mount
   useEffect(() => {
     if (isNew) { setLoaded(true); return; }
     getWorkflow(workflowId).then((res) => {
@@ -104,40 +117,58 @@ function EditorInner() {
     [nodes, edges]
   );
 
-  const simulateExecution = useCallback(
-    async (name: string) => {
+  const executeWorkflow = useCallback(
+    async (name: string, input: Record<string, any>) => {
       setRunning(true);
       setTerminalOpen(true);
+      setTerminalStatus("running");
       setTerminalLogs([]);
 
-      const log = (msg: string) =>
-        setTerminalLogs((prev) => [...prev, msg]);
+      const id = savedIdRef.current;
+      if (!id) return;
 
-      const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      try {
+        const res = await fetch("/api/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ workflowId: id, input }),
+        });
 
-      log(`[${new Date().toLocaleTimeString()}] Starting workflow: ${name}`);
-      await delay(400);
+        const data = await res.json();
 
-      for (const node of nodes) {
-        log(`  → [${node.data.type}] ${node.data.label}...`);
-        await delay(300 + Math.random() * 400);
-        log(`    ✓ completed (${(Math.random() * 0.5 + 0.1).toFixed(2)}s)`);
+        if (!res.ok) {
+          if (data.partialLogs) {
+            setTerminalLogs(data.partialLogs);
+          }
+          setTerminalStatus("failed");
+          return;
+        }
+
+        setTerminalLogs(data.logs || []);
+        setTerminalStatus("success");
+
+        await createRun({
+          workflow_id: id,
+          workflow_name: name,
+          status: "success",
+          duration: "0s",
+        });
+      } catch (err: any) {
+        setTerminalStatus("failed");
+      } finally {
+        setRunning(false);
       }
-
-      log(`[${new Date().toLocaleTimeString()}] Workflow finished (${nodes.length} nodes executed)`);
-      setRunning(false);
     },
-    [nodes]
+    []
   );
 
   const handleRunAction = useCallback(
     async (name: string) => {
       const id = await persist(name);
       if (!id) return;
-      await createRun({ workflow_id: id, workflow_name: name });
-      simulateExecution(name);
+      await executeWorkflow(name, JSON.parse(workflowInput));
     },
-    [persist, router, simulateExecution]
+    [persist, executeWorkflow, workflowInput]
   );
 
   const createNode = useCallback(
@@ -203,8 +234,13 @@ function EditorInner() {
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === "Escape" && placementType) setPlacementType(null);
+      if (event.key === "Delete" || event.key === "Backspace") {
+        if (selectedNode && !(event.target instanceof HTMLInputElement)) {
+          handleDeleteNode();
+        }
+      }
     },
-    [placementType]
+    [placementType, selectedNode]
   );
 
   const handleNameSubmit = (e: React.KeyboardEvent) => {
@@ -220,12 +256,24 @@ function EditorInner() {
   };
 
   const handleRun = () => {
+    if (nodes.length === 0) return;
     if (!hasSaved || !workflowName.trim()) {
       setSaveModalName(workflowName);
       setShowSaveModal(true);
       return;
     }
-    handleRunAction(workflowName);
+    setShowInputModal(true);
+  };
+
+  const handleRunWithInput = async () => {
+    let parsed: Record<string, any>;
+    try {
+      parsed = JSON.parse(workflowInput);
+    } catch {
+      return;
+    }
+    setShowInputModal(false);
+    await handleRunAction(workflowName);
   };
 
   const handleSaveFromModal = async () => {
@@ -234,7 +282,7 @@ function EditorInner() {
     setWorkflowName(name);
     setHasSaved(true);
     setShowSaveModal(false);
-    await handleRunAction(name);
+    setShowInputModal(true);
   };
 
   const handleSave = async () => {
@@ -261,6 +309,30 @@ function EditorInner() {
     window.addEventListener("mouseup", onUp);
   };
 
+  const toggleLogExpand = (idx: number) => {
+    setExpandedLogs((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRun();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleSave, handleRun]);
+
   if (!loaded) {
     return (
       <div className="h-screen flex items-center justify-center bg-background font-mono text-sm text-secondary-text">
@@ -271,7 +343,6 @@ function EditorInner() {
 
   return (
     <div className="h-screen flex flex-col bg-background font-sans">
-      {/* Top Bar */}
       <header className="h-12 bg-background border-b border-border-custom flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -323,7 +394,7 @@ function EditorInner() {
           </button>
           <button
             onClick={handleRun}
-            disabled={saving || running}
+            disabled={saving || running || nodes.length === 0}
             className="bg-foreground text-background text-sm font-semibold rounded-md py-1.5 px-4 hover:opacity-90 active:scale-[0.98] transition-all shadow-subtle font-mono disabled:opacity-40"
           >
             {running ? "Running..." : "Run"}
@@ -331,9 +402,7 @@ function EditorInner() {
         </div>
       </header>
 
-      {/* Main area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Panel */}
         <aside className="w-[200px] bg-background border-r border-border-custom shrink-0 flex flex-col">
           <div className="px-4 py-3 border-b border-border-custom">
             <span className="font-mono text-xs tracking-wider text-muted-text">Nodes</span>
@@ -360,7 +429,6 @@ function EditorInner() {
           </div>
         </aside>
 
-        {/* Canvas + Terminal */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div
             ref={reactFlowWrapper}
@@ -372,6 +440,11 @@ function EditorInner() {
             {placementType && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 bg-foreground text-background rounded-full font-mono text-xs shadow-subtle pointer-events-none">
                 Click on the canvas to place {placementType} node &mdash; press Esc to cancel
+              </div>
+            )}
+            {nodes.length === 0 && !placementType && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <span className="font-mono text-sm text-muted-text/40">drop a node to start</span>
               </div>
             )}
             <ReactFlow
@@ -402,7 +475,6 @@ function EditorInner() {
             </ReactFlow>
           </div>
 
-          {/* Terminal Panel */}
           {terminalOpen && (
             <div
               className="border-t border-border-custom bg-background shrink-0 flex flex-col"
@@ -415,8 +487,10 @@ function EditorInner() {
               <div className="flex items-center justify-between px-4 py-2 border-b border-border-custom shrink-0">
                 <div className="flex items-center gap-2">
                   <Terminal size={14} strokeWidth={1.75} className="text-secondary-text" />
-                  <span className="font-mono text-xs tracking-wider text-muted-text">Output</span>
-                  {running && <span className="font-mono text-xs text-secondary-text animate-pulse">running</span>}
+                  <span className="font-mono text-xs tracking-wider text-muted-text">Execution</span>
+                  {terminalStatus === "running" && <span className="font-mono text-xs text-secondary-text animate-pulse">running</span>}
+                  {terminalStatus === "success" && <span className="font-mono text-xs text-foreground">success</span>}
+                  {terminalStatus === "failed" && <span className="font-mono text-xs text-error-custom">failed</span>}
                 </div>
                 <button
                   onClick={() => setTerminalOpen(false)}
@@ -432,9 +506,39 @@ function EditorInner() {
                 {terminalLogs.length === 0 ? (
                   <span className="text-muted-text">Run the workflow to see execution output.</span>
                 ) : (
-                  terminalLogs.map((line, i) => (
-                    <div key={i} className={line.startsWith("  →") ? "text-secondary-text" : "text-primary-text"}>
-                      {line}
+                  terminalLogs.map((entry, i) => (
+                    <div key={i} className="mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${entry.status === "success" ? "bg-foreground" : "bg-error-custom"}`} />
+                        <span className="font-mono text-[11px] text-muted-text">#{entry.nodeId.slice(-4)}</span>
+                        <span className="font-mono text-[11px] font-semibold text-primary-text">{entry.kind}</span>
+                        <span className={`font-mono text-[10px] px-1.5 py-0.5 rounded-sm ${entry.status === "success" ? "bg-foreground/10 text-foreground" : "bg-error-custom/10 text-error-custom"}`}>
+                          {entry.status}
+                        </span>
+                        {entry.finishedAt && entry.startedAt && (
+                          <span className="font-mono text-[10px] text-muted-text">
+                            {new Date(entry.finishedAt).getTime() - new Date(entry.startedAt).getTime()}ms
+                          </span>
+                        )}
+                        {entry.output !== undefined && (
+                          <button
+                            onClick={() => toggleLogExpand(i)}
+                            className="font-mono text-[10px] text-secondary-text hover:text-primary-text transition-colors ml-auto"
+                          >
+                            {expandedLogs.has(i) ? "hide output" : "view output"}
+                          </button>
+                        )}
+                      </div>
+                      {expandedLogs.has(i) && entry.output !== undefined && (
+                        <pre className="mt-1.5 ml-3.5 p-2 bg-surface-custom rounded-sm text-[10px] text-secondary-text overflow-x-auto">
+                          {JSON.stringify(entry.output, null, 2)}
+                        </pre>
+                      )}
+                      {entry.error && (
+                        <div className="mt-1.5 ml-3.5 font-mono text-[10px] text-error-custom">
+                          error: {entry.error}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -443,7 +547,6 @@ function EditorInner() {
           )}
         </div>
 
-        {/* Right Panel */}
         {selectedNode && (
           <aside className="w-[300px] bg-background border-l border-border-custom shrink-0 flex flex-col overflow-y-auto">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border-custom">
@@ -565,6 +668,39 @@ function EditorInner() {
                 className="bg-foreground text-background text-sm font-semibold rounded-md py-1.5 px-4 hover:opacity-90 active:scale-[0.98] transition-all shadow-subtle font-mono disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Save & Run
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInputModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="w-full max-w-[500px] bg-background border border-border-custom rounded-lg shadow-subtle p-6">
+            <h3 className="font-mono font-bold text-base text-primary-text mb-1">Run workflow</h3>
+            <p className="font-mono text-xs text-muted-text mb-4">Enter workflow input as JSON (optional)</p>
+            <textarea
+              value={workflowInput}
+              onChange={(e) => setWorkflowInput(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleRunWithInput();
+              }}
+              className="w-full h-[200px] border border-border-custom px-3 py-2 text-sm bg-background text-primary-text rounded-md focus:outline-none focus:border-foreground transition-colors font-mono resize-none"
+              spellCheck={false}
+            />
+            <div className="flex items-center justify-end gap-3 mt-4">
+              <button
+                onClick={() => setShowInputModal(false)}
+                className="text-sm font-semibold text-secondary-text hover:text-primary-text transition-colors font-mono px-3 py-1.5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRunWithInput}
+                disabled={running}
+                className="bg-foreground text-background text-sm font-semibold rounded-md py-1.5 px-4 hover:opacity-90 active:scale-[0.98] transition-all shadow-subtle font-mono disabled:opacity-40"
+              >
+                {running ? "Running..." : "Run"}
               </button>
             </div>
           </div>
