@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { signup } from './actions'
 
-export default function RegisterPage({
+export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message: string }>
 }) {
+  const { message } = await searchParams;
+  
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <Link
@@ -70,9 +72,9 @@ export default function RegisterPage({
           </Link>
         </div>
 
-        {searchParams?.message && (
+        {message && (
           <p className="mt-4 p-4 bg-surface-elevated text-accent-output border border-accent-output/30 text-center text-sm rounded-md">
-            {searchParams.message}
+            {message}
           </p>
         )}
       </form>

@@ -3,7 +3,8 @@ import WorkflowCanvas from '@/components/canvas/WorkflowCanvas';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
-export default async function EditorPage({ params }: { params: { id: string } }) {
+export default async function EditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const {
@@ -15,7 +16,7 @@ export default async function EditorPage({ params }: { params: { id: string } })
   }
 
   // In a real app we'd fetch the workflow from DB here:
-  // const { data } = await supabase.from('workflows').select('*').eq('id', params.id).single();
+  // const { data } = await supabase.from('workflows').select('*').eq('id', id).single();
   
-  return <WorkflowCanvas workflowId={params.id} initialName="Untitled Workflow" />;
+  return <WorkflowCanvas workflowId={id} initialName="Untitled Workflow" />;
 }
