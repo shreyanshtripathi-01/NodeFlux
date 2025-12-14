@@ -482,11 +482,11 @@ export default function LandingPage() {
             <span className="text-secondary-text text-sm">Built by Shreyansh.</span>
           </div>
           <div className="flex items-center gap-4 text-sm text-secondary-text">
-            <a href="https://linkedin.com" className="hover:text-primary-text transition-colors">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/shreyanshtripathi" className="hover:text-primary-text transition-colors" target="_blank" rel="noopener noreferrer">LinkedIn</a>
             <span className="text-border-custom">·</span>
-            <a href="https://github.com" className="hover:text-primary-text transition-colors">GitHub</a>
+            <a href="https://github.com/shreyanshtripathi-01" className="hover:text-primary-text transition-colors" target="_blank" rel="noopener noreferrer">GitHub</a>
             <span className="text-border-custom">·</span>
-            <a href="https://portfolio.com" className="hover:text-primary-text transition-colors">Portfolio</a>
+            <a href="https://shreyansh-tripathi.vercel.app" className="hover:text-primary-text transition-colors" target="_blank" rel="noopener noreferrer">Portfolio</a>
           </div>
         </div>
       </footer>
