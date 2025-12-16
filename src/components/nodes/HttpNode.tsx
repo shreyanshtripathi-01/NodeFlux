@@ -2,23 +2,39 @@ import React from 'react';
 import { NodeProps } from '@xyflow/react';
 import { Globe } from 'lucide-react';
 import BaseNode from './BaseNode';
-import { HttpNodeData } from '@/types/workflow';
 
-export default function HttpNode(props: NodeProps<import("@xyflow/react").Node<HttpNodeData>>) {
+export default function HttpNode({ id, data, selected }: NodeProps) {
   return (
     <BaseNode
-      id={props.id}
+      id={id}
       category="http"
-      label={props.data.label}
+      label={data.label as string}
       icon={Globe}
-      selected={props.selected}
+      selected={selected}
     >
-      <div className="flex gap-1.5 items-center">
-        <span className="font-mono text-[10px] bg-border px-1 py-0.5 rounded text-accent-http">
-          {props.data.method || 'GET'}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 10,
+            backgroundColor: '#262626',
+            padding: '2px 4px',
+            borderRadius: 3,
+            color: '#3b82f6',
+          }}
+        >
+          {(data.method as string) || 'GET'}
         </span>
-        <span className="truncate max-w-[150px]" title={props.data.url}>
-          {props.data.url || 'No URL configured'}
+        <span
+          style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 150,
+          }}
+          title={data.url as string}
+        >
+          {(data.url as string) || 'No URL configured'}
         </span>
       </div>
     </BaseNode>

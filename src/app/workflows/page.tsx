@@ -14,24 +14,51 @@ export default async function WorkflowsDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-semibold">Your Workflows</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-text-secondary text-sm">{user.email}</span>
-          <form action="/auth/signout" method="post">
-            <button className="bg-surface hover:bg-surface-elevated px-4 py-2 rounded border border-border text-sm transition-colors">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', padding: '40px', backgroundColor: '#0a0a0a' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, color: '#e5e5e5', margin: 0 }}>Your Workflows</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ color: '#737373', fontSize: 14 }}>{user.email}</span>
+          <form action="/auth/signout" method="post" style={{ margin: 0 }}>
+            <button style={{
+              backgroundColor: '#141414',
+              color: '#e5e5e5',
+              padding: '8px 16px',
+              borderRadius: 6,
+              border: '1px solid #262626',
+              fontSize: 14,
+              cursor: 'pointer',
+              transition: 'background-color 150ms ease'
+            }}>
               Sign out
             </button>
           </form>
         </div>
       </div>
       
-      <div className="bg-surface border border-border rounded-lg p-12 flex flex-col items-center justify-center text-center">
-        <p className="text-text-secondary mb-4">No workflows found. Create your first automation pipeline.</p>
+      <div style={{
+        backgroundColor: '#141414',
+        border: '1px dashed #404040',
+        borderRadius: 12,
+        padding: 60,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+      }}>
+        <p style={{ color: '#737373', marginBottom: 24, fontSize: 15 }}>No workflows found. Create your first automation pipeline.</p>
         <Link 
           href="/editor/new"
-          className="bg-accent-trigger text-[#0a0a0a] px-4 py-2 rounded font-medium hover:bg-green-600 transition-colors"
+          style={{
+            backgroundColor: '#22c55e',
+            color: '#0a0a0a',
+            padding: '10px 20px',
+            borderRadius: 6,
+            fontWeight: 500,
+            textDecoration: 'none',
+            transition: 'background-color 150ms ease'
+          }}
         >
           Create Workflow
         </Link>

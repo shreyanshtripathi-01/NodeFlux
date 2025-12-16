@@ -7,10 +7,8 @@ import {
   Controls,
   ReactFlowProvider,
   useReactFlow,
-  Panel,
-  Edge,
-  Connection,
-  addEdge
+  ConnectionMode,
+  type DefaultEdgeOptions,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -22,12 +20,16 @@ import ExecutionConsole from '../execution/ExecutionConsole';
 import TopBar from '../layout/TopBar';
 
 const defaultViewport = { x: 0, y: 0, zoom: 1.2 };
+const defaultEdgeOptions: DefaultEdgeOptions = {
+  type: 'smoothstep',
+  style: { stroke: '#404040', strokeWidth: 1.5 },
+};
 
-function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialName: string }) {
+function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialName: string }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [workflowName, setWorkflowName] = useState(initialName);
+  const [workflowName] = useState(initialName);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const {
     nodes,
     edges,
@@ -35,6 +37,7 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
     onEdgesChange,
     onConnect,
     addNode,
+    selectedNode,
     setSelectedNode,
     setIsRunning,
     setExecutionResult,
@@ -52,20 +55,36 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
       event.preventDefault();
 
       const type = event.dataTransfer.getData('application/reactflow');
-      if (typeof type === 'undefined' || !type) {
-        return;
-      }
+      if (!type) return;
 
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
+      const labelMap: Record<string, string> = {
+        trigger: 'Trigger',
+        http: 'HTTP Request',
+        ai: 'AI Processing',
+        logic: 'Condition',
+        output: 'Output',
+      };
+
       const newNode = {
-        id: `${type}_${new Date().getTime()}`,
+        id: `${type}_${Date.now()}`,
         type,
         position,
-        data: { label: `${type} node`, category: type },
+        data: {
+          label: labelMap[type] || type,
+          category: type,
+          method: type === 'http' ? 'GET' : undefined,
+          url: type === 'http' ? '' : undefined,
+          headers: type === 'http' ? '' : undefined,
+          body: type === 'http' ? '' : undefined,
+          payload: type === 'trigger' ? '{}' : undefined,
+          prompt: type === 'ai' ? '' : undefined,
+          condition: type === 'logic' ? '' : undefined,
+        },
       };
 
       addNode(newNode as any);
@@ -76,12 +95,7 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // In a real app we'd save to supabase here.
-      // E.g., await fetch(`/api/workflows/${workflowId}`, { method: 'PUT', body: JSON.stringify({ nodes, edges }) })
-      await new Promise(resolve => setTimeout(resolve, 500)); // simulate network
-      console.log('Saved', { nodes, edges });
-    } catch (err) {
-      console.error(err);
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } finally {
       setIsSaving(false);
     }
@@ -102,7 +116,7 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
       setExecutionResult({
         status: 'error',
         duration_ms: 0,
-        steps: [{ nodeId: 'sys', type: 'system', status: 'error', error: err.message }]
+        steps: [{ nodeId: 'sys', type: 'system', status: 'error', error: err.message }],
       });
     } finally {
       setIsRunning(false);
@@ -110,18 +124,18 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
-      <TopBar 
-        workflowId={workflowId} 
-        workflowName={workflowName} 
-        onSave={handleSave} 
-        onRun={handleRun} 
-        isSaving={isSaving} 
+    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+      <TopBar
+        workflowId={workflowId}
+        workflowName={workflowName}
+        onSave={handleSave}
+        onRun={handleRun}
+        isSaving={isSaving}
       />
-      
-      <div className="flex-1 flex w-full h-full relative">
+
+      <div className="flex-1 flex w-full h-full relative overflow-hidden">
         <NodePalette />
-        
+
         <div className="flex-1 h-full relative" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
@@ -135,24 +149,32 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string, initialNa
             onPaneClick={() => setSelectedNode(null)}
             nodeTypes={nodeTypes as any}
             defaultViewport={defaultViewport}
+            defaultEdgeOptions={defaultEdgeOptions}
+            connectionMode={ConnectionMode.Loose}
             fitView
-            className="bg-[#0a0a0a]"
             proOptions={{ hideAttribution: true }}
+            style={{ backgroundColor: '#0a0a0a' }}
           >
-            <Background color="#1a1a1a" gap={20} size={2} />
-            <Controls className="bg-surface border-border fill-text-primary" />
+            <Background color="#1a1a1a" gap={20} size={1.5} />
+            <Controls
+              style={{
+                backgroundColor: '#141414',
+                border: '1px solid #262626',
+                borderRadius: 6,
+              }}
+            />
           </ReactFlow>
 
           <ExecutionConsole />
         </div>
 
-        <PropertiesPanel />
+        {selectedNode && <PropertiesPanel />}
       </div>
     </div>
   );
 }
 
-export default function WorkflowCanvas(props: { workflowId: string, initialName: string }) {
+export default function WorkflowCanvas(props: { workflowId: string; initialName: string }) {
   return (
     <ReactFlowProvider>
       <FlowCanvas {...props} />

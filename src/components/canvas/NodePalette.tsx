@@ -2,12 +2,12 @@ import React from 'react';
 import { Play, Globe, Sparkles, GitBranch, Database } from 'lucide-react';
 import { NodeType } from '@/types/workflow';
 
-const nodeConfig: Array<{ type: NodeType; label: string; icon: any; colorClass: string }> = [
-  { type: 'trigger', label: 'Trigger Node', icon: Play, colorClass: 'bg-accent-trigger' },
-  { type: 'http', label: 'HTTP Request', icon: Globe, colorClass: 'bg-accent-http' },
-  { type: 'ai', label: 'AI Processing', icon: Sparkles, colorClass: 'bg-accent-ai' },
-  { type: 'logic', label: 'Logic / Branch', icon: GitBranch, colorClass: 'bg-accent-logic' },
-  { type: 'output', label: 'Output', icon: Database, colorClass: 'bg-accent-output' },
+const nodeConfig: Array<{ type: NodeType; label: string; icon: any; colorHex: string }> = [
+  { type: 'trigger', label: 'Trigger Node', icon: Play, colorHex: '#22c55e' },
+  { type: 'http', label: 'HTTP Request', icon: Globe, colorHex: '#3b82f6' },
+  { type: 'ai', label: 'AI Processing', icon: Sparkles, colorHex: '#a78bfa' },
+  { type: 'logic', label: 'Logic / Branch', icon: GitBranch, colorHex: '#f59e0b' },
+  { type: 'output', label: 'Output', icon: Database, colorHex: '#f43f5e' },
 ];
 
 export default function NodePalette() {
@@ -17,27 +17,63 @@ export default function NodePalette() {
   };
 
   return (
-    <aside className="w-[240px] bg-surface border-r border-border flex flex-col h-full z-10 shrink-0">
-      <div className="p-4 border-b border-border">
-        <h2 className="text-sm font-semibold text-text-primary">Node Palette</h2>
-        <p className="text-xs text-text-secondary mt-1">Drag nodes to the canvas</p>
+    <aside
+      style={{
+        width: 240,
+        backgroundColor: '#141414',
+        borderRight: '1px solid #262626',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        zIndex: 10,
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ padding: 16, borderBottom: '1px solid #262626' }}>
+        <h2 style={{ fontSize: 14, fontWeight: 600, color: '#e5e5e5', margin: 0 }}>Node Palette</h2>
+        <p style={{ fontSize: 12, color: '#737373', marginTop: 4, margin: 0 }}>Drag nodes to the canvas</p>
       </div>
-      
-      <div className="p-2 flex flex-col gap-1 overflow-y-auto">
-        <div className="text-[11px] uppercase tracking-wider text-text-muted px-2 py-2 font-semibold">Available Nodes</div>
-        
+
+      <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
+        <div
+          style={{
+            fontSize: 11,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: '#525252',
+            padding: '8px 8px',
+            fontWeight: 600,
+          }}
+        >
+          Available Nodes
+        </div>
+
         {nodeConfig.map((node) => {
           const Icon = node.icon;
           return (
             <div
               key={node.type}
-              className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-elevated rounded-md cursor-grab active:cursor-grabbing group transition-colors"
-              onDragStart={(event) => onDragStart(event, node.type)}
               draggable
+              onDragStart={(event) => onDragStart(event, node.type)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 12px',
+                borderRadius: 6,
+                cursor: 'grab',
+                transition: 'background-color 150ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1c1c1c';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
-              <div className={`w-2 h-2 rounded-full ${node.colorClass}`} />
-              <Icon size={16} className="text-text-primary" />
-              <span className="text-[13px] text-text-primary group-hover:text-white transition-colors">{node.label}</span>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: node.colorHex }} />
+              <Icon size={16} style={{ color: '#e5e5e5' }} />
+              <span style={{ fontSize: 13, color: '#e5e5e5' }}>{node.label}</span>
             </div>
           );
         })}

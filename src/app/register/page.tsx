@@ -9,10 +9,40 @@ export default async function RegisterPage({
   const { message } = await searchParams;
   
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      maxWidth: 400,
+      margin: '0 auto',
+      padding: '80px 20px',
+      justifyContent: 'center',
+    }}>
       <Link
         href="/"
-        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-text-secondary bg-surface hover:bg-surface-elevated flex items-center group text-sm border border-border"
+        style={{
+          position: 'absolute',
+          left: 32,
+          top: 32,
+          padding: '8px 16px',
+          borderRadius: 6,
+          textDecoration: 'none',
+          color: '#737373',
+          backgroundColor: '#141414',
+          border: '1px solid #262626',
+          display: 'flex',
+          alignItems: 'center',
+          fontSize: 14,
+          transition: 'all 150ms ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#1c1c1c';
+          e.currentTarget.style.color = '#e5e5e5';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#141414';
+          e.currentTarget.style.color = '#737373';
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -24,56 +54,112 @@ export default async function RegisterPage({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
+          style={{ marginRight: 8, height: 16, width: 16 }}
         >
           <polyline points="15 18 9 12 15 6" />
         </svg>
         Back
       </Link>
 
-      <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-2">Create an account</h1>
-          <p className="text-text-secondary text-sm">Sign up for NodeFlux to start building workflows.</p>
+      <form style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        backgroundColor: '#141414',
+        padding: 32,
+        borderRadius: 12,
+        border: '1px solid #262626',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+      }}>
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: '#e5e5e5', margin: '0 0 8px 0' }}>Create an account</h1>
+          <p style={{ color: '#737373', fontSize: 14, margin: 0 }}>Sign up for NodeFlux to start building workflows.</p>
         </div>
 
-        <label className="text-xs uppercase tracking-wide text-text-secondary mb-1" htmlFor="email">
+        <label style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#737373', marginBottom: 4 }} htmlFor="email">
           Email
         </label>
         <input
-          className="bg-surface rounded-md px-4 py-2 mb-4 border border-border focus:border-accent-http focus:outline-none focus:ring-1 focus:ring-accent-http text-sm"
           name="email"
           placeholder="you@example.com"
           required
+          style={{
+            backgroundColor: '#0a0a0a',
+            border: '1px solid #262626',
+            borderRadius: 6,
+            padding: '10px 16px',
+            marginBottom: 16,
+            color: '#e5e5e5',
+            fontSize: 14,
+            outline: 'none',
+            transition: 'border-color 150ms ease',
+          }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
+          onBlur={(e) => (e.currentTarget.style.borderColor = '#262626')}
         />
         
-        <label className="text-xs uppercase tracking-wide text-text-secondary mb-1" htmlFor="password">
+        <label style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#737373', marginBottom: 4 }} htmlFor="password">
           Password
         </label>
         <input
-          className="bg-surface rounded-md px-4 py-2 mb-6 border border-border focus:border-accent-http focus:outline-none focus:ring-1 focus:ring-accent-http text-sm"
           type="password"
           name="password"
           placeholder="••••••••"
           required
+          style={{
+            backgroundColor: '#0a0a0a',
+            border: '1px solid #262626',
+            borderRadius: 6,
+            padding: '10px 16px',
+            marginBottom: 24,
+            color: '#e5e5e5',
+            fontSize: 14,
+            outline: 'none',
+            transition: 'border-color 150ms ease',
+          }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
+          onBlur={(e) => (e.currentTarget.style.borderColor = '#262626')}
         />
         
         <button
           formAction={signup}
-          className="bg-accent-trigger hover:bg-green-600 text-[#0a0a0a] font-medium rounded-md px-4 py-2 mb-2 transition-colors"
+          style={{
+            backgroundColor: '#22c55e',
+            color: '#0a0a0a',
+            fontWeight: 500,
+            borderRadius: 6,
+            padding: '10px 16px',
+            marginBottom: 16,
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 150ms ease',
+            fontSize: 14,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#22c55e')}
         >
           Sign Up
         </button>
         
-        <div className="text-center mt-4">
-          <span className="text-text-secondary text-sm">Already have an account? </span>
-          <Link href="/login" className="text-accent-http hover:underline text-sm font-medium">
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <span style={{ color: '#737373', fontSize: 14 }}>Already have an account? </span>
+          <Link href="/login" style={{ color: '#3b82f6', textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>
             Sign in
           </Link>
         </div>
 
         {message && (
-          <p className="mt-4 p-4 bg-surface-elevated text-accent-output border border-accent-output/30 text-center text-sm rounded-md">
+          <p style={{
+            marginTop: 24,
+            padding: 16,
+            backgroundColor: '#1c1c1c',
+            color: '#f43f5e',
+            border: '1px solid rgba(244,63,94,0.3)',
+            textAlign: 'center',
+            fontSize: 14,
+            borderRadius: 6,
+            margin: '24px 0 0 0',
+          }}>
             {message}
           </p>
         )}

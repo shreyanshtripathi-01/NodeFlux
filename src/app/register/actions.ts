@@ -15,7 +15,7 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/register?message=Could not authenticate user')
+    redirect(`/register?message=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')

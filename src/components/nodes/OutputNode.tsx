@@ -2,19 +2,18 @@ import React from 'react';
 import { NodeProps } from '@xyflow/react';
 import { Database } from 'lucide-react';
 import BaseNode from './BaseNode';
-import { OutputNodeData } from '@/types/workflow';
 
-export default function OutputNode(props: NodeProps<import("@xyflow/react").Node<OutputNodeData>>) {
+export default function OutputNode({ id, data, selected }: NodeProps) {
   return (
     <BaseNode
-      id={props.id}
+      id={id}
       category="output"
-      label={props.data.label}
+      label={data.label as string}
       icon={Database}
-      selected={props.selected}
+      selected={selected}
       hasOutput={false}
     >
-      <div className="truncate">
+      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         Save / Return
       </div>
     </BaseNode>

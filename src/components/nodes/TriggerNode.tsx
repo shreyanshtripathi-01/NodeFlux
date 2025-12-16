@@ -2,19 +2,18 @@ import React from 'react';
 import { NodeProps } from '@xyflow/react';
 import { Play } from 'lucide-react';
 import BaseNode from './BaseNode';
-import { TriggerNodeData } from '@/types/workflow';
 
-export default function TriggerNode(props: NodeProps<import("@xyflow/react").Node<TriggerNodeData>>) {
+export default function TriggerNode({ id, data, selected }: NodeProps) {
   return (
     <BaseNode
-      id={props.id}
+      id={id}
       category="trigger"
-      label={props.data.label}
+      label={data.label as string}
       icon={Play}
-      selected={props.selected}
+      selected={selected}
       hasInput={false}
     >
-      <div className="truncate">
+      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         Trigger: Manual
       </div>
     </BaseNode>

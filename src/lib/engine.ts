@@ -94,7 +94,7 @@ export async function executeDAG(nodes: AppNode[], edges: Edge[]): Promise<Execu
 
           case 'ai':
             const prompt = interpolate(node.data.prompt as string, state);
-            const aiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + process.env.GEMINI_API_KEY, {
+            const aiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' + process.env.GEMINI_API_KEY, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
