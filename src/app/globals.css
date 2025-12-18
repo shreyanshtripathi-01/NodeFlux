@@ -1,46 +1,92 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* used via utility-classes, bg-background, text-primary, and many more */
+  --color-background: #0b0d10;
+  --color-foreground: #f3f4f6;
+  --color-border: #20242b;
+  --color-input: #11151b;
+  --color-primary: #f3f4f6;
+  --color-primary-foreground: #0b0d10;
+  --color-secondary: #161a21;
+  --color-secondary-foreground: #d5dae1;
+  --color-muted: #13171d;
+  --color-muted-foreground: #8b93a1;
+  --color-panel: #0f1318;
+  --color-panel-foreground: #eef1f5;
+  --color-elevated: #171c23;
+  --color-elevated-foreground: #eef1f5;
+  --color-accent: #d8dde6;
+  --color-accent-foreground: #0b0d10;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-grid: #171b22;
 
-  --color-background: #0a0a0a;
-  --color-foreground: #e5e5e5;
-  --color-surface: #141414;
-  --color-surface-elevated: #1c1c1c;
-  --color-border: #262626;
-  --color-border-hover: #404040;
+  /* DO NOT REMOVE: these radius variables are required by the theme editor. */
+  /* Usable via classes like .rounded, .rounded-lg, etc. Add more if you need more. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 
-  --color-text-primary: #e5e5e5;
-  --color-text-secondary: #737373;
-  --color-text-muted: #525252;
+  /* DONT CHANGE OR REMOVE THIS VARIABLE */
+  --radius: var(--radius-sm);
 
-  --color-accent-trigger: #22c55e;
-  --color-accent-http: #3b82f6;
-  --color-accent-ai: #a78bfa;
-  --color-accent-logic: #f59e0b;
-  --color-accent-output: #f43f5e;
+  /* DO NOT REMOVE: these font variables are required by the theme editor. */
+  /* They're accessible via the .font-body, .font-headings, etc tailwind classes. Add more if you need more.  */
+  /* available fonts: "Inter", "DM Sans", "Nunito", "PT Serif", "Space Grotesk", "IBM Plex Mono", "IBM Plex Sans", "Roboto Slab", "Geist", "Shantell Sans" */
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-headings: 'Geist', sans-serif;
+
+  /* Add and change text sizes as you see fit */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 40px;
+  --text-4xl: 56px;
 }
 
 body {
-  background-color: var(--color-background);
+  background: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   margin: 0;
   padding: 0;
   min-height: 100vh;
 }
 
+.nodeflux-grid {
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--color-grid) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+.nodeflux-auth-grid {
+  background-image:
+    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.nodeflux-hero-lines {
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+}
+
 /* ReactFlow Custom Overrides */
 .react-flow__node {
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .react-flow__handle {
   width: 6px;
   height: 6px;
-  background-color: var(--color-border-hover);
-  border: 1px solid var(--color-text-muted);
+  background-color: var(--color-border);
+  border: 1px solid var(--color-muted-foreground);
   transition: all 0.1s ease;
 }
 
@@ -50,18 +96,18 @@ body {
 }
 
 .react-flow__edge-path {
-  stroke: var(--color-border-hover);
+  stroke: var(--color-border);
   stroke-width: 1.5;
   transition: stroke 0.15s ease, stroke-width 0.15s ease;
 }
 
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke: var(--color-text-secondary);
+  stroke: var(--color-secondary-foreground);
   stroke-width: 2;
 }
 
 .react-flow__edge.running .react-flow__edge-path {
-  stroke: var(--color-accent-trigger);
+  stroke: var(--color-success);
   stroke-dasharray: 5;
   animation: dashdraw 0.5s linear infinite;
 }
