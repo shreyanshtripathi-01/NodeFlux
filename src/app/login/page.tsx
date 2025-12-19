@@ -1,5 +1,8 @@
-import Link from 'next/link'
-import { login } from './actions'
+import Link from 'next/link';
+import { login } from './actions';
+import Icon from '@/components/global/Icon';
+import BrandLogo from '@/components/BrandLogo';
+import { t } from '@/components/global/t';
 
 export default async function LoginPage({
   searchParams,
@@ -9,161 +12,65 @@ export default async function LoginPage({
   const { message } = await searchParams;
   
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      maxWidth: 400,
-      margin: '0 auto',
-      padding: '80px 20px',
-      justifyContent: 'center',
-    }}>
-      <Link
-        href="/"
-        style={{
-          position: 'absolute',
-          left: 32,
-          top: 32,
-          padding: '8px 16px',
-          borderRadius: 6,
-          textDecoration: 'none',
-          color: '#737373',
-          backgroundColor: '#141414',
-          border: '1px solid #262626',
-          display: 'flex',
-          alignItems: 'center',
-          fontSize: 14,
-          transition: 'all 150ms ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#1c1c1c';
-          e.currentTarget.style.color = '#e5e5e5';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#141414';
-          e.currentTarget.style.color = '#737373';
-        }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ marginRight: 8, height: 16, width: 16 }}
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        Back
-      </Link>
-
-      <form style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        backgroundColor: '#141414',
-        padding: 32,
-        borderRadius: 12,
-        border: '1px solid #262626',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
-      }}>
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 600, color: '#e5e5e5', margin: '0 0 8px 0' }}>Welcome back</h1>
-          <p style={{ color: '#737373', fontSize: 14, margin: 0 }}>Sign in to NodeFlux to continue.</p>
+    <div className="nodeflux-auth-grid flex min-h-screen flex-col bg-background px-12 py-8 text-foreground">
+      <div>
+        <Link href="/" className="inline-flex items-center gap-2 rounded-lg border border-border bg-panel px-4 py-3 text-sm text-muted-foreground hover:bg-elevated transition-colors">
+          <Icon i="arrow-left" size={16} />
+          {t('Back to Home')}
+        </Link>
+      </div>
+      <div className="flex flex-1 items-center justify-center">
+        <div className="flex w-[460px] flex-col gap-8 rounded-xl border border-border bg-panel px-10 py-10 shadow-2xl shadow-background">
+          <div className="flex flex-col gap-6">
+            <BrandLogo compact={false} />
+            <div className="space-y-2">
+              <h1 className="font-headings text-2xl font-semibold tracking-tight text-panel-foreground">{t('Welcome back')}</h1>
+              <p className="text-sm text-muted-foreground">{t('Log in to your account')}</p>
+            </div>
+          </div>
+          
+          <form className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email" className="text-sm font-medium text-secondary-foreground">{t('Email')}</label>
+              <input 
+                id="email" 
+                name="email" 
+                type="email" 
+                placeholder="name@company.com" 
+                required 
+                className="flex items-center justify-between rounded-lg border border-border bg-input px-4 min-h-12 py-3 text-sm text-panel-foreground placeholder:text-muted-foreground focus:border-accent focus:bg-elevated focus:outline-none transition-colors w-full"
+              />
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <label htmlFor="password" className="text-sm font-medium text-secondary-foreground">{t('Password')}</label>
+              <input 
+                id="password" 
+                name="password" 
+                type="password" 
+                placeholder="••••••••••••" 
+                required 
+                className="flex items-center justify-between rounded-lg border border-border bg-input px-4 min-h-12 py-3 text-sm text-panel-foreground placeholder:text-muted-foreground focus:border-accent focus:bg-elevated focus:outline-none transition-colors w-full"
+              />
+            </div>
+            
+            <button formAction={login} className="flex min-h-12 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity mt-2 w-full">
+              {t('Sign In')}
+            </button>
+            
+            {message && (
+              <p className="p-3 bg-danger/10 text-danger border border-danger/20 text-center text-sm rounded-lg">
+                {message}
+              </p>
+            )}
+          </form>
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>{t("Don't have an account?")}</span>
+            <Link href="/register" className="text-foreground hover:underline">{t('Sign up')}</Link>
+          </div>
         </div>
-
-        <label style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#737373', marginBottom: 4 }} htmlFor="email">
-          Email
-        </label>
-        <input
-          name="email"
-          placeholder="you@example.com"
-          required
-          style={{
-            backgroundColor: '#0a0a0a',
-            border: '1px solid #262626',
-            borderRadius: 6,
-            padding: '10px 16px',
-            marginBottom: 16,
-            color: '#e5e5e5',
-            fontSize: 14,
-            outline: 'none',
-            transition: 'border-color 150ms ease',
-          }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
-          onBlur={(e) => (e.currentTarget.style.borderColor = '#262626')}
-        />
-        
-        <label style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#737373', marginBottom: 4 }} htmlFor="password">
-          Password
-        </label>
-        <input
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          required
-          style={{
-            backgroundColor: '#0a0a0a',
-            border: '1px solid #262626',
-            borderRadius: 6,
-            padding: '10px 16px',
-            marginBottom: 24,
-            color: '#e5e5e5',
-            fontSize: 14,
-            outline: 'none',
-            transition: 'border-color 150ms ease',
-          }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
-          onBlur={(e) => (e.currentTarget.style.borderColor = '#262626')}
-        />
-        
-        <button
-          formAction={login}
-          style={{
-            backgroundColor: '#22c55e',
-            color: '#0a0a0a',
-            fontWeight: 500,
-            borderRadius: 6,
-            padding: '10px 16px',
-            marginBottom: 16,
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 150ms ease',
-            fontSize: 14,
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#22c55e')}
-        >
-          Sign In
-        </button>
-        
-        <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <span style={{ color: '#737373', fontSize: 14 }}>Don't have an account? </span>
-          <Link href="/register" style={{ color: '#3b82f6', textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>
-            Sign up
-          </Link>
-        </div>
-
-        {message && (
-          <p style={{
-            marginTop: 24,
-            padding: 16,
-            backgroundColor: '#1c1c1c',
-            color: '#f43f5e',
-            border: '1px solid rgba(244,63,94,0.3)',
-            textAlign: 'center',
-            fontSize: 14,
-            borderRadius: 6,
-            margin: '24px 0 0 0',
-          }}>
-            {message}
-          </p>
-        )}
-      </form>
+      </div>
     </div>
-  )
+  );
 }

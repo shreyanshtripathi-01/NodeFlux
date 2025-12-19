@@ -1,7 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Play, Save, Loader2 } from 'lucide-react';
 import { useWorkflowStore } from '@/store/workflowStore';
+import Icon from '@/components/global/Icon';
+import BrandLogo from '@/components/BrandLogo';
+import { t } from '@/components/global/t';
 
 interface TopBarProps {
   workflowId: string;
@@ -15,112 +17,36 @@ export default function TopBar({ workflowId, workflowName, onSave, onRun, isSavi
   const { isRunning } = useWorkflowStore();
 
   return (
-    <header
-      style={{
-        height: 48,
-        minHeight: 48,
-        backgroundColor: '#141414',
-        borderBottom: '1px solid #262626',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <Link
-          href="/workflows"
-          style={{
-            padding: 6,
-            color: '#525252',
-            borderRadius: 4,
-            display: 'flex',
-            transition: 'color 150ms ease',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#e5e5e5')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#525252')}
-        >
-          <ArrowLeft size={16} />
-        </Link>
-        <h1
-          style={{
-            fontSize: 14,
-            fontWeight: 500,
-            color: '#e5e5e5',
-            margin: 0,
-            maxWidth: 300,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {workflowName || 'Untitled Workflow'}
-        </h1>
+    <div className="border-b border-border bg-background px-6 py-4 z-40">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-5">
+          <Link href="/workflows" className="flex items-center gap-2 rounded-lg border border-border bg-panel px-3 py-2 text-sm text-muted-foreground hover:bg-elevated transition-colors">
+            <Icon i="arrow-left" size={16} />
+            {t('Back')}
+          </Link>
+          <BrandLogo compact={true} />
+          <div className="rounded-lg border border-border bg-panel px-4 py-2.5 text-sm text-panel-foreground max-w-[200px] truncate">
+            {workflowName || t('Untitled Workflow')}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 text-sm">
+          <button 
+            onClick={onSave}
+            disabled={isSaving}
+            className="rounded-lg border border-border bg-panel px-4 py-2.5 text-panel-foreground hover:bg-elevated transition-colors disabled:opacity-50"
+          >
+            {isSaving ? t('Saving...') : t('Save')}
+          </button>
+          <button 
+            onClick={onRun}
+            disabled={isRunning}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {isRunning ? <Icon i="loader-2" size={15} /> : <Icon i="play" size={15} />}
+            {isRunning ? t('Running...') : t('Run')}
+          </button>
+        </div>
       </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button
-          onClick={onSave}
-          disabled={isSaving}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 12px',
-            fontSize: 12,
-            fontWeight: 500,
-            color: '#e5e5e5',
-            backgroundColor: 'transparent',
-            border: '1px solid #262626',
-            borderRadius: 6,
-            cursor: isSaving ? 'not-allowed' : 'pointer',
-            opacity: isSaving ? 0.5 : 1,
-            transition: 'background-color 150ms ease',
-          }}
-          onMouseEnter={(e) => {
-            if (!isSaving) e.currentTarget.style.backgroundColor = '#1c1c1c';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-          Save
-        </button>
-
-        <button
-          onClick={onRun}
-          disabled={isRunning}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 12px',
-            fontSize: 12,
-            fontWeight: 500,
-            color: '#0a0a0a',
-            backgroundColor: '#22c55e',
-            border: 'none',
-            borderRadius: 6,
-            cursor: isRunning ? 'not-allowed' : 'pointer',
-            opacity: isRunning ? 0.5 : 1,
-            transition: 'background-color 150ms ease',
-          }}
-          onMouseEnter={(e) => {
-            if (!isRunning) e.currentTarget.style.backgroundColor = '#16a34a';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#22c55e';
-          }}
-        >
-          {isRunning ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Play size={14} fill="currentColor" />
-          )}
-          Run
-        </button>
-      </div>
-    </header>
+    </div>
   );
 }

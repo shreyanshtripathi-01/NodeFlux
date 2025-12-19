@@ -1,99 +1,90 @@
-import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
+import Link from 'next/link';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
+import { t } from '@/components/global/t';
+import BrandLogo from '@/components/BrandLogo';
+import HeroFlowGraphic from '@/components/HeroFlowGraphic';
+import FeatureCard from '@/components/FeatureCard';
 
 export default async function Index() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (user) {
-    redirect('/workflows')
+    redirect('/workflows');
   }
 
   return (
-    <div style={{
-      flex: 1,
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 32,
-      padding: '0 20px',
-      textAlign: 'center',
-      backgroundColor: '#0a0a0a',
-      backgroundImage: 'radial-gradient(circle at 50% 0%, #1a1a1a 0%, #0a0a0a 70%)',
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, zIndex: 10 }}>
-        <h1 style={{
-          fontSize: 'clamp(40px, 8vw, 72px)',
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          color: '#e5e5e5',
-          margin: 0,
-          lineHeight: 1.1
-        }}>
-          NodeFlux
-        </h1>
-        <p style={{
-          fontSize: 'clamp(16px, 2vw, 20px)',
-          color: '#737373',
-          maxWidth: 600,
-          margin: 0,
-          lineHeight: 1.5
-        }}>
-          Visual workflow automation for developers. Build, test, and run complex API pipelines visually.
-        </p>
+    <div className="flex min-h-[1200px] flex-col bg-background text-foreground">
+      <div className="border-b border-border px-12 py-5">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between">
+          <BrandLogo />
+          <div className="flex items-center gap-4 text-sm">
+            <Link href="/login" className="px-3 py-2 text-muted-foreground">{t('Log In')}</Link>
+            <Link href="/register" className="rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground">{t('Get Started')}</Link>
+          </div>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, zIndex: 10 }}>
-        <Link
-          href="/login"
-          style={{
-            backgroundColor: '#141414',
-            color: '#e5e5e5',
-            padding: '12px 24px',
-            borderRadius: 8,
-            border: '1px solid #262626',
-            fontWeight: 500,
-            textDecoration: 'none',
-            transition: 'all 150ms ease',
-          }}
-        >
-          Sign In
-        </Link>
-        <Link
-          href="/register"
-          style={{
-            backgroundColor: '#22c55e',
-            color: '#0a0a0a',
-            padding: '12px 24px',
-            borderRadius: 8,
-            fontWeight: 600,
-            textDecoration: 'none',
-            boxShadow: '0 0 20px rgba(34,197,94,0.2)',
-            transition: 'all 150ms ease',
-          }}
-        >
-          Get Started
-        </Link>
+      <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-24 px-12 pb-16 pt-20">
+        <div className="grid grid-cols-2 items-center gap-12">
+          <div className="flex flex-col gap-8">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-panel px-4 py-2 text-sm text-muted-foreground">
+              <div className="h-2 w-2 rounded-full bg-success" />
+              <span>{t('Composable workflows for API-first teams')}</span>
+            </div>
+            <div className="space-y-6">
+              <h1 className="max-w-[620px] font-headings text-4xl font-semibold leading-[1.02] tracking-tight text-foreground">
+                {t('Visual API Workflows for Developers')}
+              </h1>
+              <p className="max-w-[560px] text-lg leading-8 text-muted-foreground">
+                {t('Chain APIs, webhooks, and AI models in a focused visual builder that feels more like an engineering tool than a drag-and-drop toy.')}
+              </p>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <Link href="/register" className="rounded-lg bg-primary px-6 py-4 font-medium text-primary-foreground">{t('Start Building for Free')}</Link>
+              <Link href="#" className="rounded-lg border border-border bg-panel px-6 py-4 font-medium text-panel-foreground">{t('View Documentation')}</Link>
+            </div>
+            <div className="flex items-center gap-8 pt-3 text-sm text-muted-foreground">
+              <span>{t('Used for internal tooling')}</span>
+              <span>{t('Fast AI orchestration')}</span>
+              <span>{t('Deploy from workflow to endpoint')}</span>
+            </div>
+          </div>
+          <HeroFlowGraphic />
+        </div>
+
+        <div className="flex flex-col gap-8 border-t border-border pt-16">
+          <div className="flex items-end justify-between">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">{t('Built for technical teams')}</p>
+              <h2 className="font-headings text-2xl font-semibold tracking-tight text-foreground">
+                {t('Everything you need to design, test, and ship intelligent workflows')}
+              </h2>
+            </div>
+            <div className="text-sm text-muted-foreground">{t('Minimal shell, IDE-grade internals')}</div>
+          </div>
+          <div className="grid grid-cols-3 gap-6">
+            <FeatureCard icon="waypoints" title={t('Visual Node Builder')} description={t('Compose branching logic, HTTP calls, webhooks, and data transforms on a clean graph canvas.')} emphasized={true} />
+            <FeatureCard icon="brain" title={t('AI Integration')} description={t('Drop model nodes into any chain, combine prompts with APIs, and route outputs into downstream steps.')} />
+            <FeatureCard icon="rocket" title={t('Instant Deployment')} description={t('Turn finished workflows into production-ready endpoints and scheduled jobs without leaving the workspace.')} />
+          </div>
+        </div>
       </div>
 
-      {/* Decorative Grid */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundImage: 'linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        opacity: 0.3,
-        pointerEvents: 'none',
-      }} />
+      <div className="mt-auto border-t border-border px-12 py-6">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between text-sm text-muted-foreground">
+          <span>{t('© 2026 NodeFlux')}</span>
+          <div className="flex items-center gap-6">
+            <Link href="#">{t('Github')}</Link>
+            <Link href="#">{t('Twitter')}</Link>
+            <Link href="#">{t('Docs')}</Link>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
