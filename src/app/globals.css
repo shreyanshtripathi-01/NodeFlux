@@ -2,25 +2,25 @@
 
 @theme {
   /* used via utility-classes, bg-background, text-primary, and many more */
-  --color-background: #0b0d10;
-  --color-foreground: #f3f4f6;
-  --color-border: #20242b;
-  --color-input: #11151b;
-  --color-primary: #f3f4f6;
-  --color-primary-foreground: #0b0d10;
-  --color-secondary: #161a21;
-  --color-secondary-foreground: #d5dae1;
-  --color-muted: #13171d;
-  --color-muted-foreground: #8b93a1;
-  --color-panel: #0f1318;
-  --color-panel-foreground: #eef1f5;
-  --color-elevated: #171c23;
-  --color-elevated-foreground: #eef1f5;
-  --color-accent: #d8dde6;
-  --color-accent-foreground: #0b0d10;
-  --color-success: #4ade80;
-  --color-danger: #f87171;
-  --color-grid: #171b22;
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-fg);
+  --color-elevated: var(--elevated);
+  --color-elevated-foreground: var(--elevated-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-grid: var(--grid);
 
   /* DO NOT REMOVE: these radius variables are required by the theme editor. */
   /* Usable via classes like .rounded, .rounded-lg, etc. Add more if you need more. */
@@ -49,6 +49,52 @@
   --text-4xl: 56px;
 }
 
+:root {
+  /* LIGHT MODE */
+  --bg: #ffffff;
+  --fg: #111827;
+  --border: #e5e7eb;
+  --input: #f9fafb;
+  --primary: #111827;
+  --primary-fg: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-fg: #374151;
+  --muted: #f9fafb;
+  --muted-fg: #6b7280;
+  --panel: #ffffff;
+  --panel-fg: #111827;
+  --elevated: #ffffff;
+  --elevated-fg: #111827;
+  --accent: #f3f4f6;
+  --accent-fg: #111827;
+  --success: #10b981;
+  --danger: #ef4444;
+  --grid: #e5e7eb;
+}
+
+.dark {
+  /* DARK MODE */
+  --bg: #0b0d10;
+  --fg: #f3f4f6;
+  --border: #20242b;
+  --input: #11151b;
+  --primary: #f3f4f6;
+  --primary-fg: #0b0d10;
+  --secondary: #161a21;
+  --secondary-fg: #d5dae1;
+  --muted: #13171d;
+  --muted-fg: #8b93a1;
+  --panel: #0f1318;
+  --panel-fg: #eef1f5;
+  --elevated: #171c23;
+  --elevated-fg: #eef1f5;
+  --accent: #d8dde6;
+  --accent-fg: #0b0d10;
+  --success: #4ade80;
+  --danger: #f87171;
+  --grid: #171b22;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -58,23 +104,48 @@ body {
   min-height: 100vh;
 }
 
+/* Noise overlay */
+.noise-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.dark .noise-bg {
+  opacity: 0.03;
+}
+
+/* 3D Window Animation */
+.perspective-container {
+  perspective: 1200px;
+}
+
+.window-3d {
+  transform: rotateX(8deg) rotateY(-12deg) rotateZ(2deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+.window-3d:hover {
+  transform: rotateX(4deg) rotateY(-6deg) rotateZ(1deg) translateY(-10px);
+  box-shadow: -30px 50px 120px rgba(0,0,0,0.15);
+}
+
+.dark .window-3d:hover {
+  box-shadow: -30px 50px 120px rgba(0,0,0,0.6);
+}
+
 .nodeflux-grid {
   background-image:
     radial-gradient(circle at 1px 1px, var(--color-grid) 1px, transparent 0);
   background-size: 20px 20px;
 }
 
-.nodeflux-auth-grid {
-  background-image:
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-.nodeflux-hero-lines {
-  background:
-    radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 30%),
-    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+.nodeflux-hero-gradient {
+  background: radial-gradient(circle at 50% 50%, var(--color-grid) 0%, var(--color-background) 100%);
 }
 
 /* ReactFlow Custom Overrides */

@@ -6,22 +6,23 @@ export const shortDescription = 'NodeFlux wordmark with a simple node glyph';
 
 export default function BrandLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-3 text-foreground">
-      <div className="flex size-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-        <div className="relative flex size-5 items-center justify-center">
-          <div className="absolute left-0 top-0 size-1.5 rounded-full bg-foreground" />
-          <div className="absolute right-0 top-0 size-1.5 rounded-full bg-foreground" />
-          <div className="absolute bottom-0 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-foreground" />
-          <div className="h-px w-4 bg-foreground/70" />
-          <div className="absolute top-1/2 h-3 w-px -translate-y-1/4 bg-foreground/70" />
-        </div>
+    <div className="flex items-center gap-3 text-foreground group">
+      <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-panel to-elevated border border-border/50 shadow-sm transition-transform duration-300 group-hover:scale-105">
+        <svg viewBox="0 0 24 24" fill="none" className="size-5 text-foreground">
+          <path d="M12 4V20M4 12H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="4" r="3" fill="currentColor" />
+          <circle cx="12" cy="20" r="3" fill="currentColor" />
+          <circle cx="4" cy="12" r="3" fill="currentColor" />
+          <circle cx="20" cy="12" r="3" fill="currentColor" />
+          <circle cx="12" cy="12" r="4" fill="var(--color-success)" />
+        </svg>
       </div>
       {!compact && (
         <div className="flex items-center gap-2">
-          <span className="font-headings text-lg font-semibold tracking-tight">{t('NodeFlux')}</span>
-          <div className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
-            <span>{t('API')}</span>
-          </div>
+          <span className="font-headings text-xl font-bold tracking-tighter">
+            {t('NodeFlux')}
+            <span className="text-success">.</span>
+          </span>
         </div>
       )}
     </div>
