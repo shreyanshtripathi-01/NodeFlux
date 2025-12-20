@@ -22,7 +22,7 @@ import TopBar from '../layout/TopBar';
 const defaultViewport = { x: 0, y: 0, zoom: 1.2 };
 const defaultEdgeOptions: DefaultEdgeOptions = {
   type: 'smoothstep',
-  style: { stroke: '#404040', strokeWidth: 1.5 },
+  style: { stroke: 'var(--color-border)', strokeWidth: 2 },
 };
 
 function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialName: string }) {
@@ -63,7 +63,7 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialNa
       });
 
       const labelMap: Record<string, string> = {
-        trigger: 'Trigger',
+        trigger: 'Trigger Node',
         http: 'HTTP Request',
         ai: 'AI Processing',
         logic: 'Condition',
@@ -124,7 +124,7 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialNa
   };
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+    <div className="flex h-screen flex-col bg-background text-foreground">
       <TopBar
         workflowId={workflowId}
         workflowName={workflowName}
@@ -133,10 +133,10 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialNa
         isSaving={isSaving}
       />
 
-      <div className="flex-1 flex w-full h-full relative overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <NodePalette />
 
-        <div className="flex-1 h-full relative" ref={reactFlowWrapper}>
+        <div className="nodeflux-grid relative flex-1 bg-background" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -153,15 +153,10 @@ function FlowCanvas({ workflowId, initialName }: { workflowId: string; initialNa
             connectionMode={ConnectionMode.Loose}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ backgroundColor: '#0a0a0a' }}
+            className="bg-transparent"
           >
-            <Background color="#1a1a1a" gap={20} size={1.5} />
             <Controls
-              style={{
-                backgroundColor: '#141414',
-                border: '1px solid #262626',
-                borderRadius: 6,
-              }}
+              className="!bg-panel !border !border-border !rounded-lg !shadow-xl fill-muted-foreground text-muted-foreground"
             />
           </ReactFlow>
 

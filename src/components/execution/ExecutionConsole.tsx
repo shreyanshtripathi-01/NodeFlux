@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { useWorkflowStore } from '@/store/workflowStore';
+import Icon from '@/components/global/Icon';
+import { t } from '@/components/global/t';
 
 export default function ExecutionConsole() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -14,137 +15,66 @@ export default function ExecutionConsole() {
 
   return (
     <div
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: isExpanded ? 300 : 40,
-        backgroundColor: '#0a0a0a',
-        borderTop: '1px solid #262626',
-        zIndex: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'height 200ms ease-out',
-        overflow: 'hidden',
-      }}
+      className="absolute bottom-0 left-0 right-0 border-t border-border bg-panel z-20 flex flex-col transition-all duration-200"
+      style={{ height: isExpanded ? 300 : 64 }}
     >
-      {/* Title Bar */}
-      <div
+      <div 
+        className="flex items-center justify-between px-5 py-3 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
-        style={{
-          height: 40,
-          minHeight: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          cursor: 'pointer',
-          backgroundColor: isExpanded ? '#141414' : 'transparent',
-          transition: 'background-color 150ms ease',
-        }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {isExpanded ? (
-            <ChevronDown size={16} style={{ color: '#737373' }} />
-          ) : (
-            <ChevronUp size={16} style={{ color: '#737373' }} />
-          )}
-          <span style={{ fontSize: 13, fontFamily: 'var(--font-mono)', color: '#e5e5e5' }}>
-            Execution Console
-          </span>
-
+        <div className="flex items-center gap-3 text-sm text-panel-foreground">
+          <Icon i="terminal" size={16} />
+          <span>{t('Execution Console')}</span>
           {isRunning && (
-            <span style={{ marginLeft: 16, fontSize: 11, fontFamily: 'var(--font-mono)', color: '#22c55e' }}>
-              Running...
+            <span className="ml-2 text-primary font-body tracking-tight">
+              {t('Running...')}
             </span>
           )}
-
           {!isRunning && executionResult && (
-            <span
-              style={{
-                marginLeft: 16,
-                fontSize: 11,
-                fontFamily: 'var(--font-mono)',
-                color: executionResult.status === 'success' ? '#22c55e' : '#f43f5e',
-              }}
-            >
-              {executionResult.status === 'success' ? 'Completed' : 'Failed'} (
-              {executionResult.duration_ms}ms)
+            <span className={`ml-2 font-body tracking-tight ${executionResult.status === 'success' ? 'text-success' : 'text-danger'}`}>
+              {executionResult.status === 'success' ? t('Completed') : t('Failed')} ({executionResult.duration_ms}ms)
             </span>
           )}
         </div>
+        <button className="rounded-lg border border-border bg-panel px-3 py-2 text-sm text-muted-foreground hover:bg-elevated transition-colors">
+          {isExpanded ? t('Collapse') : t('Expand')}
+        </button>
       </div>
 
-      {/* Logs */}
       {isExpanded && (
-        <div
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: 16,
-            fontFamily: 'var(--font-mono)',
-            fontSize: 12,
-          }}
-        >
+        <div className="flex-1 flex flex-col gap-2 overflow-y-auto px-5 pb-4 text-sm text-muted-foreground">
           {isRunning ? (
-            <div style={{ color: '#525252', fontStyle: 'italic' }}>Executing workflow nodes...</div>
+            <div className="rounded-md bg-background px-3 py-2 font-body tracking-tight italic opacity-50">
+              {t('Executing workflow nodes...')}
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col gap-2">
               {executionResult?.steps.map((step, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 4,
-                    borderBottom: idx < executionResult.steps.length - 1 ? '1px solid #1c1c1c' : 'none',
-                    paddingBottom: 12,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div key={idx} className="rounded-md bg-background px-3 py-3 font-body tracking-tight flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="opacity-50">
+                      {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </span>
                     {step.status === 'success' ? (
-                      <CheckCircle2 size={14} style={{ color: '#22c55e' }} />
+                      <span className="text-success">[INFO]</span>
                     ) : (
-                      <XCircle size={14} style={{ color: '#f43f5e' }} />
+                      <span className="text-danger">[ERROR]</span>
                     )}
-                    <span style={{ color: '#e5e5e5' }}>
+                    <span className="text-panel-foreground">
                       [{step.type}] {step.nodeId}
                     </span>
-                    <span
-                      style={{
-                        marginLeft: 'auto',
-                        color: '#525252',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                      }}
-                    >
-                      <Clock size={12} /> {step.duration_ms}ms
+                    <span className="ml-auto flex items-center gap-1 opacity-70">
+                      <Icon i="clock-3" size={12} /> {step.duration_ms}ms
                     </span>
                   </div>
-
                   {step.status === 'error' && (
-                    <div style={{ marginLeft: 22, color: '#f43f5e', wordBreak: 'break-word' }}>
-                      Error: {step.error}
+                    <div className="ml-[104px] text-danger">
+                      {t('Error:')} {step.error}
                     </div>
                   )}
-
                   {step.output && (
-                    <div
-                      style={{
-                        marginLeft: 22,
-                        marginTop: 4,
-                        backgroundColor: '#1c1c1c',
-                        padding: 8,
-                        borderRadius: 4,
-                        color: '#737373',
-                        overflowX: 'auto',
-                        maxHeight: 120,
-                        overflowY: 'auto',
-                      }}
-                    >
-                      <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+                    <div className="ml-[104px] mt-1 bg-input p-3 rounded-md border border-border overflow-auto max-h-[120px]">
+                      <pre className="m-0 whitespace-pre-wrap text-muted-foreground font-body text-xs">
                         {JSON.stringify(step.output, null, 2)}
                       </pre>
                     </div>
